@@ -5,6 +5,7 @@ using CourseLibraryAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 using CourseLibraryAPI.Helpers;
 using AutoMapper;
+using CourseLibraryAPI.ResourcesParameters;
 
 namespace CourseLibraryAPI.Controllers
 {
@@ -22,14 +23,15 @@ namespace CourseLibraryAPI.Controllers
         }
 
         [HttpGet()]
-        public ActionResult<IEnumerable<AuthorDto>> GetAuthors()
+        [HttpHead]
+        public ActionResult<IEnumerable<AuthorDto>> GetAuthors([FromQuery]AuthorsResourceParameters authorsResourceParameters)
         {
-            var authorsFromRepo = _courseLibraryRepository.GetAuthors();
+            var authorsFromRepo = _courseLibraryRepository.GetAuthors(authorsResourceParameters);
 
             return Ok(_mapper.Map<IEnumerable<AuthorDto>>(authorsFromRepo));
         }
 
-        [HttpGet("{authorId:guid}")]
+        [HttpGet("{authorId:guid}", Name ="GetAuthor")]
         public IActionResult GetAuthor(Guid authorId)
         {
             var authorsFromRepo = _courseLibraryRepository.GetAuthor(authorId);
@@ -38,6 +40,24 @@ namespace CourseLibraryAPI.Controllers
                 return NotFound();
             }
             return Ok(_mapper.Map<AuthorDto>(authorsFromRepo));
+        }
+
+        [HttpPost]
+        public ActionResult<AuthorDto> CreateAuthor(AuthorForCreationDto author)
+        {
+            var authorEntity = _mapper.Map<Entities.Author>(author);
+            _courseLibraryRepository.AddAuthor(authorEntity);
+            _courseLibraryRepository.Save();
+
+            var authorToReturn = _mapper.Map<AuthorDto>(authorEntity);
+            return CreatedAtRoute("GetAuthor", new { authorId = authorToReturn.Id }, authorToReturn);
+        }
+
+        [HttpOptions]
+        public IActionResult GetAuthorizedOptions()
+        {
+            Response.Headers.Add("Allow", "GET,OPTIONS,POST");
+            return Ok();
         }
     }
 }

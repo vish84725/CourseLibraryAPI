@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using CourseLibraryAPI.Entities;
+using CourseLibraryAPI.ResourcesParameters;
 
 namespace CourseLibraryAPI.Services
 {
@@ -12,6 +13,7 @@ namespace CourseLibraryAPI.Services
         void UpdateCourse(Course course);
         void DeleteCourse(Course course);
         IEnumerable<Author> GetAuthors();
+        IEnumerable<Author> GetAuthors(AuthorsResourceParameters authorsResourceParameters);
         Author GetAuthor(Guid authorId);
         IEnumerable<Author> GetAuthors(IEnumerable<Guid> authorIds);
         void AddAuthor(Author author);
